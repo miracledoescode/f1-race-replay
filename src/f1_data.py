@@ -1,5 +1,6 @@
 import os
 import sys
+import re
 import fastf1
 import fastf1.plotting
 from multiprocessing import Pool, cpu_count
@@ -155,9 +156,18 @@ def get_circuit_rotation(session):
     circuit = session.get_circuit_info()
     return circuit.rotation
 
+def _get_event_name(session):
+    """
+    Returns a sanitized string representation of the session for use in filenames.
+    Removes any characters that could be used for path traversal.
+    """
+    event_name = str(session).replace(' ', '_')
+    # Remove any characters that aren't alphanumeric, underscore, or hyphen
+    return re.sub(r'[^a-zA-Z0-9_\-]', '_', event_name)
+
 def get_race_telemetry(session, session_type='R'):
 
-    event_name = str(session).replace(' ', '_')
+    event_name = _get_event_name(session)
     cache_suffix = 'sprint' if session_type == 'S' else 'race'
 
     # Check if this data has already been computed
@@ -769,7 +779,7 @@ def get_quali_telemetry(session, session_type='Q'):
     #   }
     # }
 
-    event_name = str(session).replace(' ', '_')
+    event_name = _get_event_name(session)
     cache_suffix = 'sprintquali' if session_type == 'SQ' else 'quali'
 
     # Check if this data has already been computed
