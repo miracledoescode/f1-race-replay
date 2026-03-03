@@ -10,19 +10,17 @@ from datetime import timedelta
 
 from src.lib.tyres import get_tyre_compound_int
 from src.lib.time import parse_time_string, format_time
+from src.config import CACHE_DIR, COMPUTED_DATA_DIR, FPS, DT
 
 import pandas as pd
 
 def enable_cache():
     # Check if cache folder exists
-    if not os.path.exists('.fastf1-cache'):
-        os.makedirs('.fastf1-cache')
+    if not os.path.exists(CACHE_DIR):
+        os.makedirs(CACHE_DIR)
 
     # Enable local cache
-    fastf1.Cache.enable_cache('.fastf1-cache')
-
-FPS = 25
-DT = 1 / FPS
+    fastf1.Cache.enable_cache(CACHE_DIR)
 
 def _process_single_driver(args):
     """Process telemetry data for a single driver - must be top-level for multiprocessing"""
@@ -164,7 +162,7 @@ def get_race_telemetry(session, session_type='R'):
 
     try:
         if "--refresh-data" not in sys.argv:
-            with open(f"computed_data/{event_name}_{cache_suffix}_telemetry.pkl", "rb") as f:
+            with open(os.path.join(COMPUTED_DATA_DIR, f"{event_name}_{cache_suffix}_telemetry.pkl"), "rb") as f:
                 frames = pickle.load(f)
                 print(f"Loaded precomputed {cache_suffix} telemetry data.")
                 print("The replay should begin in a new window shortly!")
@@ -415,11 +413,11 @@ def get_race_telemetry(session, session_type='R'):
     print("completed telemetry extraction...")
     print("Saving to cache file...")
     # If computed_data/ directory doesn't exist, create it
-    if not os.path.exists("computed_data"):
-        os.makedirs("computed_data")
+    if not os.path.exists(COMPUTED_DATA_DIR):
+        os.makedirs(COMPUTED_DATA_DIR)
 
     # Save using pickle (10-100x faster than JSON)
-    with open(f"computed_data/{event_name}_{cache_suffix}_telemetry.pkl", "wb") as f:
+    with open(os.path.join(COMPUTED_DATA_DIR, f"{event_name}_{cache_suffix}_telemetry.pkl"), "wb") as f:
         pickle.dump({
             "frames": frames,
             "driver_colors": get_driver_colors(session),
@@ -775,7 +773,7 @@ def get_quali_telemetry(session, session_type='Q'):
     # Check if this data has already been computed
     try:
         if "--refresh-data" not in sys.argv:
-            with open(f"computed_data/{event_name}_{cache_suffix}_telemetry.pkl", "rb") as f:
+            with open(os.path.join(COMPUTED_DATA_DIR, f"{event_name}_{cache_suffix}_telemetry.pkl"), "rb") as f:
                 data = pickle.load(f)
                 print(f"Loaded precomputed {cache_suffix} telemetry data.")
                 print("The replay should begin in a new window shortly!")
@@ -816,10 +814,10 @@ def get_quali_telemetry(session, session_type='Q'):
 
     # Save to the compute_data directory
 
-    if not os.path.exists("computed_data"):
-        os.makedirs("computed_data")
+    if not os.path.exists(COMPUTED_DATA_DIR):
+        os.makedirs(COMPUTED_DATA_DIR)
 
-    with open(f"computed_data/{event_name}_{cache_suffix}_telemetry.pkl", "wb") as f:
+    with open(os.path.join(COMPUTED_DATA_DIR, f"{event_name}_{cache_suffix}_telemetry.pkl"), "wb") as f:
         pickle.dump({
             "results": qualifying_results,
             "telemetry": telemetry_data,

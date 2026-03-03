@@ -1,7 +1,13 @@
 import os
 import arcade
 import numpy as np
-from src.f1_data import FPS
+from src.config import (
+    DEFAULT_SCREEN_WIDTH,
+    DEFAULT_SCREEN_HEIGHT,
+    DEFAULT_SCREEN_TITLE,
+    BACKGROUND_IMAGE_PATH,
+    FPS
+)
 from src.ui_components import (
     LeaderboardComponent, 
     WeatherComponent, 
@@ -14,16 +20,12 @@ from src.ui_components import (
 )
 
 
-SCREEN_WIDTH = 1920
-SCREEN_HEIGHT = 1200
-SCREEN_TITLE = "F1 Race Replay"
-
 class F1RaceReplayWindow(arcade.Window):
     def __init__(self, frames, track_statuses, example_lap, drivers, title,
                  playback_speed=1.0, driver_colors=None, circuit_rotation=0.0,
                  left_ui_margin=340, right_ui_margin=260, total_laps=None):
         # Set resizable to True so the user can adjust mid-sim
-        super().__init__(SCREEN_WIDTH, SCREEN_HEIGHT, title, resizable=True)
+        super().__init__(DEFAULT_SCREEN_WIDTH, DEFAULT_SCREEN_HEIGHT, title, resizable=True)
 
         self.frames = frames
         self.track_statuses = track_statuses
@@ -108,8 +110,7 @@ class F1RaceReplayWindow(arcade.Window):
         self.ty = 0
 
         # Load Background
-        bg_path = os.path.join("resources", "background.png")
-        self.bg_texture = arcade.load_texture(bg_path) if os.path.exists(bg_path) else None
+        self.bg_texture = arcade.load_texture(BACKGROUND_IMAGE_PATH) if os.path.exists(BACKGROUND_IMAGE_PATH) else None
 
         arcade.set_background_color(arcade.color.BLACK)
 

@@ -4,6 +4,7 @@ from typing import Sequence, Optional, Tuple
 from src.lib.time import format_time
 import numpy as np
 import os
+from src.config import CONTROLS_ICONS_DIR, WEATHER_ICONS_DIR, TYRE_ICONS_DIR, FPS
 
 def _format_wind_direction(degrees: Optional[float]) -> str:
   if degrees is None:
@@ -26,13 +27,12 @@ class LegendComponent(BaseComponent):
         self.x = x
         self.y = y
         self._control_icons_textures = {}
-        # Load control icons from images/icons folder (all files)
-        icons_folder = os.path.join("images", "controls")
-        if os.path.exists(icons_folder):
-            for filename in os.listdir(icons_folder):
+        # Load control icons from CONTROLS_ICONS_DIR (all files)
+        if os.path.exists(CONTROLS_ICONS_DIR):
+            for filename in os.listdir(CONTROLS_ICONS_DIR):
                 if filename.lower().endswith(('.png', '.jpg', '.jpeg')):
                     texture_name = os.path.splitext(filename)[0]
-                    texture_path = os.path.join(icons_folder, filename)
+                    texture_path = os.path.join(CONTROLS_ICONS_DIR, filename)
                     self._control_icons_textures[texture_name] = arcade.load_texture(texture_path)
         self.lines = [
             "Controls:",
@@ -62,13 +62,12 @@ class WeatherComponent(BaseComponent):
         self.top_offset = top_offset
         self.info = None
         self._weather_icon_textures = {}
-        # Load weather icons from images/weather folder (all files)
-        weather_folder = os.path.join("images", "weather")
-        if os.path.exists(weather_folder):
-            for filename in os.listdir(weather_folder):
+        # Load weather icons from WEATHER_ICONS_DIR (all files)
+        if os.path.exists(WEATHER_ICONS_DIR):
+            for filename in os.listdir(WEATHER_ICONS_DIR):
                 if filename.lower().endswith(('.png', '.jpg', '.jpeg')):
                     texture_name = os.path.splitext(filename)[0]
-                    texture_path = os.path.join(weather_folder, filename)
+                    texture_path = os.path.join(WEATHER_ICONS_DIR, filename)
                     self._weather_icon_textures[texture_name] = arcade.load_texture(texture_path)
 
     def set_info(self, info: Optional[dict]):
@@ -125,13 +124,12 @@ class LeaderboardComponent(BaseComponent):
         self.selected = []  # Changed to list for multiple selection
         self.row_height = 25
         self._tyre_textures = {}
-        # Import the tyre textures from the images/tyres folder (all files)
-        tyres_folder = os.path.join("images", "tyres")
-        if os.path.exists(tyres_folder):
-            for filename in os.listdir(tyres_folder):
+        # Import the tyre textures from TYRE_ICONS_DIR (all files)
+        if os.path.exists(TYRE_ICONS_DIR):
+            for filename in os.listdir(TYRE_ICONS_DIR):
                 if filename.lower().endswith(('.png', '.jpg', '.jpeg')):
                     texture_name = os.path.splitext(filename)[0]
-                    texture_path = os.path.join(tyres_folder, filename)
+                    texture_path = os.path.join(TYRE_ICONS_DIR, filename)
                     self._tyre_textures[texture_name] = arcade.load_texture(texture_path)
 
     def set_entries(self, entries: List[Tuple[str, Tuple[int,int,int], dict, float]]):
@@ -989,12 +987,11 @@ class RaceControlsComponent(BaseComponent):
         self._flash_timer = 0.0
         self._flash_duration = 0.3  # seconds
 
-        _controls_folder = os.path.join("images", "controls")
-        if os.path.exists(_controls_folder):
-            for filename in os.listdir(_controls_folder):
+        if os.path.exists(CONTROLS_ICONS_DIR):
+            for filename in os.listdir(CONTROLS_ICONS_DIR):
                 if filename.lower().endswith(('.png', '.jpg', '.jpeg')):
                     texture_name = os.path.splitext(filename)[0]
-                    texture_path = os.path.join(_controls_folder, filename)
+                    texture_path = os.path.join(CONTROLS_ICONS_DIR, filename)
                     self._control_textures[texture_name] = arcade.load_texture(texture_path)
 
     def on_resize(self, window):
@@ -1267,10 +1264,9 @@ def extract_race_events(frames: List[dict], track_statuses: List[dict], total_la
         start_time = status.get("start_time", 0)
         end_time = status.get("end_time")
         
-        # Convert time to frame (assuming 25 FPS)
-        fps = 25
-        start_frame = int(start_time * fps)
-        end_frame = int(end_time * fps) if end_time else start_frame + 250  # Default 10 seconds
+        # Convert time to frame using FPS from config
+        start_frame = int(start_time * FPS)
+        end_frame = int(end_time * FPS) if end_time else start_frame + 250  # Default 10 seconds
         
         # This prevents rendering artifacts from pre-race track status events
         # that shouldn't appear on the timeline... Events that span frame 0
